@@ -46,7 +46,7 @@ corpus <- tm_map(corpus, content_transformer(removeNumPunct))
 dtm <- TermDocumentMatrix(corpus)
 dtm <- as.matrix(dtm)
 
-fre <- sort(rowSums(dtm),decreasing=TRUE)
+fre <- sort(rowSums(dtm),decreasing=TRUE) #teste
 
 wordcloud(corpus, min.freq = 1, max.words=50,
           random.order=FALSE, rot.per=0.35,
