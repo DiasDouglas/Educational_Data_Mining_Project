@@ -1,0 +1,108 @@
+---
+title: "How the Coronavirus Changed People's Thoughts About Education? An Analysis Using Keywords on Twitter"
+author: "Douglas Dias, Carlos Azevedo - Department of Computing, UFRPE"
+date: "14/09/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#Instalar
+install.packages("tm", repos = 'http://cran.us.r-project.org')
+install.packages("wordcloud", repos = 'http://cran.us.r-project.org')
+install.packages("RColorBrewer", repos = 'http://cran.us.r-project.org')
+install.packages("twitteR", repos = 'http://cran.us.r-project.org')
+install.packages("syuzhet", repos = 'http://cran.us.r-project.org')
+
+#Carregar
+library("tm")
+library("wordcloud")
+library("RColorBrewer")
+library("twitteR")
+library("syuzhet")
+
+config <- read.csv("config_twitter.csv", header = T, sep = ';')
+
+consumer_key <- config$API_KEY
+consumer_secret <- config$API_SECRET_KEY
+access_token <- config$ACCESS_TOKEN
+access_secret <- config$ACCESS_TOKEN_SECRET
+
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+
+```
+
+<center>
+
+This paper was developed as a final project for the Educational Data Mining class, lectured by Dr. Rafael Mello.
+
+</center>
+
+# {.tabset}
+
+## Introduction
+
+The objective of this paper is to collect, process and analyze data from the last year, by month, about some keywords, related to education, on Twitter. After that, we will compare the related topics before and after the COVID-19 spread throught the world. The results will be used to learn what has changed, what are de difficulties and the new characteristics related to education. The focus of this work will be on english tweets. 
+
+## Data Extraction {.tabset}
+
+Each one of the following tabs represents one keyword, searched on Twitter.
+
+### Education {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("#education", n=1000, lang="en")
+#Convertendo os twittes para o formato de DF.
+tweets <- twListToDF(tweets)
+#Colapsando todos os twittes em um vetor de uma posição.
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+#Coloca tudo em minúsculo
+corpus <- tm_map(corpus, tolower)
+#Remove pontuação
+corpus <- tm_map(corpus, removePunctuation)
+#Remove espaços extras em branco
+corpus <- tm_map(corpus, stripWhitespace)
+#Remove palavras ruído
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# remove URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# remove qualquer coisa que não seja letras em português e espaço.
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r wordCloud}
+wordcloud(corpus, min.freq = 1, max.words=50,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r sentimentAnalysis, include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r plottingSentiment}
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for '#education'")
+```
+
+## Data Analysis
+
+## Conclusions
