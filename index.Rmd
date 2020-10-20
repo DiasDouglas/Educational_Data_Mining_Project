@@ -43,36 +43,29 @@ This paper was developed as a final project for the Educational Data Mining clas
 
 The objective of this paper is to collect, process and analyze data from the last year, by month, about some keywords, related to education, on Twitter. After that, we will compare the related topics before and after the COVID-19 spread throught the world. The results will be used to learn what has changed, what are de difficulties and the new characteristics related to education. The focus of this work will be on english tweets. 
 
-## Data Extraction {.tabset}
-
-Each one of the following tabs represents one keyword, searched on Twitter.
-
-### Education {.tabset}
-
-#### Word Cloud 
-
 ```{r include=FALSE}
-tweets <- searchTwitter("#education", n=1000, lang="en")
-#Convertendo os twittes para o formato de DF.
+tweets <- searchTwitter("Covid", n=1000, lang="en", since='2020-10-15', until='2020-10-19')
+# Converts all tweets to the Data Frame format.
 tweets <- twListToDF(tweets)
-#Colapsando todos os twittes em um vetor de uma posição.
+
+# Collapsing all tweets into a unidimensional vector
 tweets_t <- paste(tweets$text, collapse = " ")
 
 tweets_S <- VectorSource(tweets_t)
 corpus <- Corpus(tweets_S)
 
-#Coloca tudo em minúsculo
+# To lowercase
 corpus <- tm_map(corpus, tolower)
-#Remove pontuação
+# Removes punctuation
 corpus <- tm_map(corpus, removePunctuation)
-#Remove espaços extras em branco
+# Removes whitespaces
 corpus <- tm_map(corpus, stripWhitespace)
-#Remove palavras ruído
+# Removes stopwords
 corpus <- tm_map(corpus, removeWords, stopwords("en"))
-# remove URLs
+# Removes URLs
 removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
 corpus <- tm_map(corpus, removeURL)
-# remove qualquer coisa que não seja letras em português e espaço.
+# Removes anything that is not english letters or whitespaces.
 removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
 corpus <- tm_map(corpus, content_transformer(removeNumPunct))
 
@@ -83,8 +76,55 @@ fre <- sort(rowSums(dtm),decreasing=TRUE)
 
 ```
 
-```{r wordCloud}
-wordcloud(corpus, min.freq = 1, max.words=50,
+```{r}
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+## Data Extraction {.tabset}
+
+Each one of the following tabs represents one keyword, searched on Twitter.
+
+### Education {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Education", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+# Removes whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces.
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r}
+wordcloud(corpus, min.freq = 1, max.words=100,
           random.order=FALSE, rot.per=0.35,
           colors=brewer.pal(8, "Dark2"))
 ```
@@ -92,16 +132,418 @@ wordcloud(corpus, min.freq = 1, max.words=50,
 
 #### Sentiment Analysis
 
-```{r sentimentAnalysis, include=FALSE}
+```{r include=FALSE}
   # Gives points to the tweets, measuring them
   tweets_texts <- tweets$text
   s <- get_nrc_sentiment(tweets_texts)
 ```
 
-```{r plottingSentiment}
+```{r}
   barplot(colSums(s), las=2, col = rainbow(10),
-    ylab = "Quantity", main = "Sentiment Score for '#education'")
+    ylab = "Quantity", main = "Sentiment Score for 'Education'")
 ```
+
+### Learning Analytics {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Learning+Analytics", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'LearningAnalytics'")
+```
+
+### Educational Data Mining {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Educational+Data+Mining", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'Educational Data Mining'")
+```
+
+### Students {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Students", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'Students'")
+```
+
+### Schools {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Schools", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'Schools'")
+```
+
+### Pandemic Education {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Pandemic+Education", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'Pandemic Education'")
+```
+
+### E-Learning {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("E-Learning", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'E-Learning'")
+```
+
+### Homeschooling {.tabset}
+
+#### Word Cloud 
+
+```{r include=FALSE}
+tweets <- searchTwitter("Homeschooling", n=1000, lang="en")
+# Converts all tweets to the Data Frame format.
+tweets <- twListToDF(tweets)
+
+# Collapsing all tweets into a unidimensional vector
+tweets_t <- paste(tweets$text, collapse = " ")
+
+tweets_S <- VectorSource(tweets_t)
+corpus <- Corpus(tweets_S)
+
+# To lowercase
+corpus <- tm_map(corpus, tolower)
+# Removes punctuation
+corpus <- tm_map(corpus, removePunctuation)
+#Removes extras whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Removes stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+# Removes URLs
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+corpus <- tm_map(corpus, removeURL)
+# Removes anything that is not english letters or whitespaces
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+corpus <- tm_map(corpus, content_transformer(removeNumPunct))
+
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+
+fre <- sort(rowSums(dtm),decreasing=TRUE)
+
+```
+
+```{r }
+wordcloud(corpus, min.freq = 1, max.words=100,
+          random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Sentiment Analysis
+
+```{r include=FALSE}
+  # Gives points to the tweets, measuring them
+  tweets_texts <- tweets$text
+  s <- get_nrc_sentiment(tweets_texts)
+```
+
+```{r }
+  barplot(colSums(s), las=2, col = rainbow(10),
+    ylab = "Quantity", main = "Sentiment Score for 'Homeschooling'")
+```
+
+
+
 
 ## Data Analysis
 
